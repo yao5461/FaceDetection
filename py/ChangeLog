@@ -1,0 +1,15 @@
+2014-04-22 20:00 Liu Yao<xuanyao0111@gmail.com>
+*AdaBoostClassifierFace.py
+-A implement of AdaBoost Algorithm for face detection
+*AdaBoostClassifierFaceParallel.py
+-The parallel framework implement of the algorithm above. 
+*CascadeClassifierFace.py
+-To train a cascade strucutre classifier for face detection. There is a parallel framwork in this code. 
+*cascade_config.txt
+-The configuration information file of CascadeClassifierFace.py.
+*FaceDetector.py
+-To detect face by using the classifier trained by CascadeClassifierFace.py.
+*README
+*note_install_pil.txt
+*ChangeLog
+-Some documents.
