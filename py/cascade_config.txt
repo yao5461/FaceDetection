@@ -1,0 +1,12 @@
+PositiveSamples: 100
+NegativeSamples: 200
+MaxIteration: 0
+SampleType: gif
+SampleWidth: 24
+SampleHeight: 24
+PositiveSamplePath: samples/faces/face
+NegativeSamplePath: samples/nonfaces/nonface
+ZFill: 4
+FalsePositiveRateLayer: 0.5
+DetectionRateLayer: 0.9
+FalsePositiveRateTarget: 0.000001

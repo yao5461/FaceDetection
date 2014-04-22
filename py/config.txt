@@ -1,0 +1,8 @@
+PositiveSamples: 200
+NegativeSamples: 400
+MaxIteration: 40
+SampleType: pgm
+SampleWidth: 19
+SampleHeight: 19
+PositiveSamplePath: samples/positive/face
+NegativeSamplePath: samples/negative/B1_
