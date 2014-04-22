@@ -1,0 +1,63 @@
+#author: yao
+#some problems when I install PIL(Python Image Library) on my macine.
+#My machine: Max OS X 10.9.2
+#Environment: python 2.7.5  
+              GCC 4.2.1
+              Compatible Apple LLVM 5.0
+              Xcode 5.1.1
+
+necessary libraries:
+  JPEG support, libjpeg  install command: sudo port install jpeg
+  PNG support, zlib install command: sudo port install zlib
+  OpenType support, freetype2 install command: sudo brew install freetype
+
+note1: I install freetype by using command "sudo port install freetype", but I didn't found it. Thus I change to command "sudo brew install freetype". It will be installed in "/usr/local/lib"
+
+
+Try1(failed):
+build source code directly. command "sudo python setup.py install"
+error:
+ "clang: error: unknown argument: '-mno-fused-madd' [-Wunused-command-line-argument-hard-error-in-future]"
+"clang: note: this will be a hard error (cannot be downgraded to a warning) in the future"
+
+Try2(failed):
+install PIL by using tool: easy_install .
+command:"sudo easy_install pil"
+error: It is same as Try1
+
+Try3(failed):
+install PIL by using tool: mac port.
+command:"sudo port install py27-pil"
+There is no error report. But I can't import PIL in a python program. 
+I can't fix it.
+
+Try4(failed):
+I found out the way to fix the error in Try1 and Try2.
+Maybe this error caused by Xcode 5.1, the compolier regard this as an error.
+One fixd command: "sudo ARCHFLAGS=-Wno-error=unused-command-line-argument-hard-error-in-future easy_install PIL"
+It works, but another error occurs. 
+Error like this:
+  fatal error: 'freetype/fterrors.h' file not found
+  #include <freetype/fterrors.h>
+         ^
+  1 error generated.
+  error: Setup script exited with error: command 'clang' failed with exit status 1
+
+The way to fix this error:
+link the library.
+command "ln -s /usr/local/include/freetype2 /usr/local/include/freetype"
+
+Try5(failed):
+Fixed the error above. I install pil by using easy_install
+command "sudo ARCHFLAGS=-Wno-error=unused-command-line-argument-hard-error-in-future easy_install PIL"
+It works again. But I also can't import PIL in program. I'm very confusion.
+
+Try6(succeed):
+The last way I was succeed. I try to build pil source code again.
+command:
+  export CFLAGS=-Qunused-arguments 
+  export CPPFLAGS=-Qunused-arguments 
+  sudo python setup.py install
+
+It works!!! My god! I can import PIL now.
+

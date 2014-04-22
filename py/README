@@ -1,2 +1,18 @@
-ReadMe
+====ReadMe====
+Date: 2014/04/22 20:00
+Author: Yao Liu
+E-Mail: xuanyao0111@gmail.com
+
+Environment:
+  Mac OS X 10.9.2
+  GCC 4.2.1
+  XCode 5.1.1
+
+  python 2.7.5
+  numpy
+  scipy
+  matplotlib
+  Parallel Python
+  PIL
+
 
