@@ -9,7 +9,7 @@ from PIL import Image
 from xml.dom.minidom import Document
 
 # tuple of all parallel python servers to connect with
-ppservers = ()
+ppservers = ("*",)
 
 class HaarFeature:
     """
@@ -343,23 +343,19 @@ class AdaBoostFace:
 
         for index in range(all_len):
             if index % slider_base == 0 and index != 0:
-                #jobs.append(job_server.submit(self.training_one_weak_classifier_slider,
-                #                              (start_index, index), (), ("numpy", ),
-                #                                None, (), "default", globals()))
                 jobs.append(job_server.submit(self.training_one_weak_classifier_slider,
                                               (start_index, index), globals=globals()))
                 #print 'submit job: [', start_index, index, ']'
                 start_index = index
 
             if index == all_len - 1:
-                #jobs.append(job_server.submit(self.training_one_weak_classifier_slider,
-                #                              (start_index, all_len), (), ("numpy", ),
-                #                              None, (), "default",  globals()))
                 jobs.append(job_server.submit(self.training_one_weak_classifier_slider,
                                               (start_index, index), globals=globals()))
                 #print 'submit job: [', start_index, all_len, ']'
 
+
         #print 'finished submit! Do task!'
+        job_server.wait()
 
         for job in jobs:
             #[err_num, index] = job()
@@ -368,8 +364,10 @@ class AdaBoostFace:
             res_info.append((err_num, classifier))
 
         #job_server.print_stats()
-
+        job_server.destroy()
+        
         (res_error, res_classifier) = min(res_info)
+
         return res_error, res_classifier
 
 
@@ -382,7 +380,7 @@ class AdaBoostFace:
             self.iter += 1
 
             #choose a current best weak classifier
-            #[err, classifier] = self.training_one_weak_classifier()
+            #err, classifier] = self.training_one_weak_classifier()
             [err, classifier] = self.training_one_weak_classifier_parallel()
 
             #update the widget of classifier chosen
@@ -455,7 +453,6 @@ class AdaBoostFace:
                         self.weak_classifiers.append(temp_classifier)
 
 
-
 class CascadeClassifierFace():
     """
     The class to train a cascade classifier.
@@ -490,13 +487,15 @@ class CascadeClassifierFace():
             print '\tfalse positive rate: ', false_positive_rate_last
 
             #update negative sample set
-            for sample in self.negative_samples:
-                if self.predict(sample.integral_img) == 0:
-                    self.negative_samples.remove(sample)
-
+            index = 0
+            while index < len(self.negative_samples):
+                if self.predict(self.negative_samples[index].integral_img) == 0:
+                    self.negative_samples.pop(index)
+                else:
+                    index += 1
             self.negative_sample_num = len(self.negative_samples)
 
-
+    
     def train_one_strong_classifier(self, false_positive_rate_last, detection_rate_last):
         """
         Train a strong classifier with feature_num weak classifiers using ada-boost algorithm.
@@ -769,11 +768,17 @@ class CascadeClassifierFace():
         f.close()
 
 
-    def write_information_to_log(self):
+    def write_information_to_log(self, start_time, end_time):
         """
         Write a log file to record information of this cascade classifier.
         """
         f = open('log.txt', 'w')
+        #record time
+        f.write('start time: ' + start_time)
+        f.write('end time: ' + end_time)
+        #record sample number
+        f.write('positive sample: ' + str(self.positive_sample_num))
+        f.write('negative sample: ' + str(self.negative_sample_num))
         #write size
         f.write('sample size: ' + str(self.sample_width) + ' * ' + str(self.sample_height))
         f.write('stage number: ' + str(len(self.cascade_classifiers)))
@@ -789,10 +794,12 @@ class CascadeClassifierFace():
         f.close()
 
 
-cc = CascadeClassifierFace('cascade_config.txt')
-print 'start time: ', time.strftime('%H:%M:%S', time.localtime(time.time()))
-cc.train_cascade_classifier()
-print 'finished time: ', time.strftime('%H:%M:%S', time.localtime(time.time()))
-cc.create_classifier_file()
-cc.write_information_to_log()
-
+if __name__ == "__main__":
+    cc = CascadeClassifierFace('cascade_config.txt')
+    start_time = time.strftime('%H:%M:%S', time.localtime(time.time()))
+    print 'start time: ', start_time
+    cc.train_cascade_classifier()
+    end_time = time.strftime('%H:%M:%S', time.localtime(time.time()))
+    print 'finished time: ', end_time
+    cc.create_classifier_file()
+    cc.write_information_to_log(start_time, end_time)

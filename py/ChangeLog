@@ -1,3 +1,7 @@
+2014-04-24 11:00 Liu Yao<xunayao0111@gmail.com>
+*CascadeClassifierFace.py
+-Fixed an error of using parallel. It can run on cloud service machine now. 
+
 2014-04-22 20:00 Liu Yao<xuanyao0111@gmail.com>
 *AdaBoostClassifierFace.py
 -A implement of AdaBoost Algorithm for face detection
