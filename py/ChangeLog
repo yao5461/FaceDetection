@@ -1,3 +1,9 @@
+2014-04-26 12:00 Liu Yao<xuanyao011@gmail.com>
+*CascadeClassifierFace.py
+-Fixed an error in line 574.
+*FaceDetector.py
+-Modify feature calculation while scaling the sub-window.
+
 2014-04-24 11:00 Liu Yao<xunayao0111@gmail.com>
 *CascadeClassifierFace.py
 -Fixed an error of using parallel. It can run on cloud service machine now. 

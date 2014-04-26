@@ -7,6 +7,7 @@ SampleHeight: 24
 PositiveSamplePath: samples/faces/face
 NegativeSamplePath: samples/nonfaces/nonface
 ZFill: 4
+CpuNum: 0
 FalsePositiveRateLayer: 0.5
 DetectionRateLayer: 0.9
 FalsePositiveRateTarget: 0.000001

@@ -28,7 +28,7 @@ class HaarFeature:
         self.axis_y_scaled = y_scaled
 
 
-    def cal_feature_value(self, integral_img, w = 19, h = 19):
+    def cal_feature_value(self, integral_img, w = 24, h = 24):
         """
         Calculate the value of the feature and then return it.
         @param integral_img: the integral image matrix of a image
@@ -45,30 +45,33 @@ class HaarFeature:
         row, col = integral_img.shape
         row -= 1
         col -= 1
-        self.x = int(round(self.x * row / h))
-        self.y = int(round(self.y * col / w))
+        self.x = int(round(self.x * (row / h)))
+        self.y = int(round(self.y * (col / w)))
 
         if self.type == '2h':
-            self.axis_y_scaled = int(round(self.axis_y_scaled * row / h))
-            self.axis_x_scaled = min(int(round(2 * self.axis_x_scaled * col / w + 1)) / 2, (col - self.y + 1) / 2)
+            self.axis_y_scaled = int(round(self.axis_y_scaled * (row / h)))
+            self.axis_x_scaled = min(int(round(2 * self.axis_x_scaled * (col / w) + 1)) / 2, (col - self.y + 1) / 2)
         elif self.type == '2v':
-            self.axis_y_scaled = min(int(round(2 * self.axis_y_scaled * row / h + 1)) / 2, (row - self.x + 1) / 2)
-            self.axis_x_scaled = int(round(self.axis_x_scaled * col / w))
+            self.axis_y_scaled = min(int(round(2 * self.axis_y_scaled * (row / h) + 1)) / 2, (row - self.x + 1) / 2)
+            self.axis_x_scaled = int(round(self.axis_x_scaled * (col / w)))
         elif self.type == '3h':
-            self.axis_y_scaled = int(round(self.axis_y_scaled * row / h))
-            self.axis_x_scaled = min(int(round(3 * self.axis_x_scaled * col / w)) / 3, (col - self.y + 1) / 3)
+            self.axis_y_scaled = int(round(self.axis_y_scaled * (row / h)))
+            self.axis_x_scaled = min(int(round(3 * self.axis_x_scaled * (col / w))) / 3, (col - self.y + 1) / 3)
         elif self.type == '3v':
-            self.axis_y_scaled = min(int(round(3 * self.axis_y_scaled * row / h)) / 3, (row - self.x + 1) / 3)
-            self.axis_x_scaled = int(round(self.axis_x_scaled * col / w))
+            self.axis_y_scaled = min(int(round(3 * self.axis_y_scaled * (row / h))) / 3, (row - self.x + 1) / 3)
+            self.axis_x_scaled = int(round(self.axis_x_scaled * (col / w)))
         elif self.type == '4c':
-            self.axis_y_scaled = min(int(round(2 * self.axis_y_scaled * row / h + 1)) / 2, (row - self.x + 1) / 2)
-            self.axis_x_scaled = min(int(round(2 * self.axis_x_scaled * col / w + 1)) / 2, (col - self.y + 1) / 2)
+            self.axis_y_scaled = min(int(round(2 * self.axis_y_scaled * (row / h) + 1)) / 2, (row - self.x + 1) / 2)
+            self.axis_x_scaled = min(int(round(2 * self.axis_x_scaled * (col / w) + 1)) / 2, (col - self.y + 1) / 2)
         else:
             print "Error feature type!"
 
-        # 'row: ', row, 'col: ', col
-        #print 'x:', self.x, 'y:', self.y
-        #print 'x_axis:', self.axis_x_scaled, 'y_axis:', self.axis_y_scaled
+        #test print
+        #if self.type == '4c' and (self.y + self.axis_x_scaled * 2) > 25:
+        #    print 'row: ', row, 'col: ', col
+        #    print 'x:', self.x, 'y:', self.y
+        #    print 'x_axis:', self.axis_x_scaled, 'y_axis:', self.axis_y_scaled
+        #    print 're x:', record_axis_x, 're y:', record_axis_y
 
         #!!!Note: There is a mistake, the mapping is: (x, y) -> (h, w)
         x_one_scaled = self.axis_y_scaled
@@ -131,6 +134,9 @@ class HaarFeature:
         self.y = record_y
         self.axis_x_scaled = record_axis_x
         self.axis_y_scaled = record_axis_y
+
+        temp = (row / h) * (col / w)
+        feature_value = feature_value / temp
 
         return feature_value
 
@@ -441,7 +447,8 @@ class FaceDetector():
 
         return result
 
-detector = FaceDetector('xml_data/cascade_classifier3.xml')
+
+detector = FaceDetector('xml_data/cascade_classifier4.xml')
 #lena = scipy.misc.lena()
 #lena = numpy.array(Image.open('09010309.jpg'))
 print '=' * 20

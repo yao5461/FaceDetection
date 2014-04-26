@@ -225,7 +225,7 @@ class AdaBoostFace:
     """
     Training a strong classifier for face detection using ada-boost algorithm
     """
-    def __init__(self, sample_width, sample_height):
+    def __init__(self, sample_width, sample_height, cpu_num = 0):
         """
         class initial
         """
@@ -242,6 +242,9 @@ class AdaBoostFace:
         #feature number or the number of iteration
         self.max_iteration = 1
         self.iter = 1
+
+        #number of cpu number
+        self.cpu_number = cpu_num
 
         #all weak classifiers
         self.weak_classifiers = []
@@ -260,6 +263,7 @@ class AdaBoostFace:
         feature = classifier.feature
         #all feature values of each sample.  data:<id, value>
         feature_values = {}
+        
         index = 0
         #pass though all samples to calculate the feature value
         for sample in self.all_samples:
@@ -269,7 +273,7 @@ class AdaBoostFace:
 
         #sorted all samples by feature value
         sorted_feature_value_list = sorted(feature_values.items(), key=lambda item: item[1])
-
+    
         #calculate the minimum number of error, and determine the current threshold(feature value)
         below_positive_sample_widget_sum = 0.0
         below_negative_sample_widget_sum = 0.0
@@ -335,7 +339,7 @@ class AdaBoostFace:
         job_server = pp.Server(ppservers=ppservers, secret='password')
         jobs = []
         res_info = []
-        cpu_num = job_server.get_ncpus()
+        cpu_num = job_server.get_ncpus() if self.cpu_number == 0 else self.cpu_number
         slider_base = len(self.weak_classifiers) / cpu_num
 
         start_index = 0
@@ -380,7 +384,7 @@ class AdaBoostFace:
             self.iter += 1
 
             #choose a current best weak classifier
-            #err, classifier] = self.training_one_weak_classifier()
+            #[err, classifier] = self.training_one_weak_classifier()
             [err, classifier] = self.training_one_weak_classifier_parallel()
 
             #update the widget of classifier chosen
@@ -502,7 +506,7 @@ class CascadeClassifierFace():
         Add this strong classifier to new layer in cascade classifier.
         """
         #instance of AdaBoostFace
-        ada_boost = AdaBoostFace(self.sample_width, self.sample_height)
+        ada_boost = AdaBoostFace(self.sample_width, self.sample_height, self.cpu_num)
         ada_boost.all_samples = self.positive_samples + self.negative_samples
 
         #training initial
@@ -567,7 +571,9 @@ class CascadeClassifierFace():
             if temp_res == 1:
                 false_positive_num += 1
 
-        false_positive_rate_current = false_positive_num * 1.0 / self.negative_sample_num
+        false_positive_rate_current = 0.0
+        if self.negative_sample_num > 0:
+            false_positive_rate_current = false_positive_num * 1.0 / self.negative_sample_num
         detection_rate_current = positive_correct_num * 1.0 / self.positive_sample_num
 
         #decrease the threshold of this strong classifier to increase detection rate
@@ -587,7 +593,10 @@ class CascadeClassifierFace():
                 if temp_res == 1:
                     false_positive_num += 1
 
-            false_positive_rate_current = false_positive_num * 1.0 / self.negative_sample_num
+            if self.negative_sample_num == 0:
+                false_positive_rate_current = 0.0
+            else:
+                false_positive_rate_current = false_positive_num * 1.0 / self.negative_sample_num
             detection_rate_current = positive_correct_num * 1.0 / self.positive_sample_num
 
         #push this strong classifier as current final layer
@@ -623,6 +632,7 @@ class CascadeClassifierFace():
         self.false_positive_rate_target = float(config_items['FalsePositiveRateTarget'])
         #bits number to fill by 0
         self.z_fill = int(config_items['ZFill'])
+        self.cpu_num = int(config_items['CpuNum'])
 
         #the set of all samples
         self.positive_samples = []
