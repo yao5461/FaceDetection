@@ -9,7 +9,8 @@ from PIL import Image
 from xml.dom.minidom import Document
 
 # tuple of all parallel python servers to connect with
-ppservers = ("*",)
+# ppservers = ("*",)
+ppservers = ()
 
 class HaarFeature:
     """
@@ -129,11 +130,14 @@ class ImgSample:
         #print self.integral_img
 
 
+    """
     def read_pgm_img(self, img_path, byteorder = '>'):
-        """
-        Return image data from a raw PGm file as numpy array
-        @param img_path: the path of the sample image
-        """
+    """
+    """
+    Return image data from a raw PGm file as numpy array
+    @param img_path: the path of the sample image
+    """
+    """
         with open(img_path, 'rb') as f:
             buffer = f.read()
         try:
@@ -150,6 +154,7 @@ class ImgSample:
                                 count=int(width)*int(height),
                                 offset=len(header)
                                 ).reshape((int(height), int(width)))
+    """
 
 
     def cal_integral_img(self, img_content):
@@ -191,7 +196,7 @@ class WeakClassifier:
         return 1 if (value * self.flag) < (self.threshold * self.flag) else 0
 
 
-class StrongClassifier():
+class StrongClassifier:
     """
     The class of one strong classifier consist of several weak classifiers.
     """
@@ -336,7 +341,8 @@ class AdaBoostFace:
         """
         Training a weak classifier by parallel computer framework
         """
-        job_server = pp.Server(ppservers=ppservers, secret='password')
+        #job_server = pp.Server(ppservers=ppservers, secret='password')
+        job_server = pp.Server(ppservers=ppservers)
         jobs = []
         res_info = []
         cpu_num = job_server.get_ncpus() if self.cpu_number == 0 else self.cpu_number
@@ -457,7 +463,7 @@ class AdaBoostFace:
                         self.weak_classifiers.append(temp_classifier)
 
 
-class CascadeClassifierFace():
+class CascadeClassifierFace:
     """
     The class to train a cascade classifier.
     """
@@ -509,12 +515,24 @@ class CascadeClassifierFace():
         ada_boost = AdaBoostFace(self.sample_width, self.sample_height, self.cpu_num)
         ada_boost.all_samples = self.positive_samples + self.negative_samples
 
+        #finish condition
+        iteration_num = 0 
+        current_len = len(self.feature_num_layers)
+        if self.stage_num > current_len:
+            iteration_num = self.feature_num_layers[current_len - 1] + 25
+            self.feature_num_layers.append(iteration_num)
+        else:
+            iteration_num = self.feature_num_layers[self.stage_num - 1]
+
         #training initial
         feature_num = 0
         false_positive_rate_current = false_positive_rate_last
         detection_rate_current = 0.0
 
         while false_positive_rate_current > self.false_positive_rate_layer * false_positive_rate_last:
+            if feature_num >= iteration_num:
+                break
+
             feature_num += 1
 
             #train a strong classifier
@@ -645,6 +663,9 @@ class CascadeClassifierFace():
         #all strong classifier
         self.cascade_classifiers = []
         self.stage_num = 0
+
+        #setting the number of features in each layer by human intervention
+        self.feature_num_layers = [2, 10, 25, 25, 50, 50, 50]
 
 
     def read_sample_data(self):

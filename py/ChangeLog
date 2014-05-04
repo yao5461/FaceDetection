@@ -1,4 +1,8 @@
-2014-04-26 12:00 Liu Yao<xuanyao011@gmail.com>
+2014-05-04 20:00 Liu Yao<xuanyao0111@gmail.com>
+*CascadeClassifierFace.py
+-Add codes in line 539 to choose the number of features per layers by humain intervention.
+
+2014-04-26 12:00 Liu Yao<xuanyao0111@gmail.com>
 *CascadeClassifierFace.py
 -Fixed an error in line 574.
 *FaceDetector.py
